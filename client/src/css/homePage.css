@@ -1,0 +1,9 @@
+.home-container {
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .home-container hr {
+    margin: 9px 15px 9px 15px;
+  }
