@@ -3,6 +3,7 @@ const { findUser, setPassword } = require("../Models/auth.model");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const { findByProperty } = require("../Models/general.model");
+const jwt = require("jsonwebtoken");
 module.exports.validateLogin = (req, res, next) => {
   let { account, password } = req.body;
 
@@ -135,5 +136,42 @@ module.exports.checkCodeForgetPassword = async (req, res, next) => {
         .status(300)
         .json({ status: "fail", message: "Vui lòng kiểm tra lại đường dẫn" });
     }
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({ message: "INTERNAL SERVER ERROR" });
+  }
+};
+// module.exports.checkToken = (req, res, next) => {
+//   let { authentication } = req.headers;
+//   console.log("authen-----------", authentication);
+//   let checkToken = jwt.verify(authentication, "ManhTH2402", (err, decoded) => {
+//     if (err) {
+//       // Xử lý lỗi xác minh JWT
+//       console.error("Error verifying JWT:", err);
+//     } else {
+//       // Truy cập vào payload của JWT
+//       const payload = decoded;
+//       req.authorization = payload.user_id;
+//     }
+//   });
+//   console.log("checkToken", checkToken);
+
+//   if (checkToken) {
+//     next();
+//   } else {
+//     res.status(404).json({ status: "fail", message: "Please Login" });
+//   }
+// };
+
+module.exports.checkToken = (req, res, next) => {
+  let { authentication } = req.headers;
+  console.log("authen-----------", authentication);
+  try {
+    const decoded = jwt.verify(authentication, "ManhTH2402");
+    const payload = decoded;
+    req.headers.authorization = payload.user_id;
+    next();
+  } catch (err) {
+    console.error("Error verifying JWT:", err);
+    res.status(404).json({ status: "fail", message: "Please Login" });
+  }
 };

@@ -3,94 +3,46 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 // import axios from "axios";
-import io from "socket.io-client"
+import {io} from "socket.io-client"
 // import io  from "socket.io"
 // import { storage } from "../../../../firebase";
 // import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 import { ToastContainer, toast } from "react-toastify";
 import "../../css/main.css";
+import axios from "axios";
 const host = 'http://localhost:4000';
 export default function Main() {
-    const postIcon = [
-        "🙂",
-        "😀",
-        "😄",
-        "😆",
-        "😅",
-        "😂",
-        "🤣",
-        "😊",
-        "😌",
-        "😉",
-        "😏",
-        "😍",
-        "😘",
-        "😗",
-        "😙",
-        "😚",
-        "🤗",
-        "😳",
-        "🙃",
-        "😈",
-        "😛",
-        "😝",
-        "😜",
-        "😋",
-        "🤓",
-        "😎",
-        "🤑",
-        "😒",
-        "😞",
-        "😔",
-        "😖",
-        "😓",
-        "😢",
-        "😭",
-        "😟",
-        "😣",
-        "😩",
-        "😫",
-        "😕",
-        "🤔",
-        "🙄",
-        "😤",
-        "😇",
-        "😠",
-        "😶",
-        "🤐",
-        "😐",
-        "😑",
-        "😯",
-        "😧",
-        "😨",
-        "😰",
-        "😱",
-        "😴",
-        "😬",
-        "🤥",
-        "🤒",
-        "😷",
-        "🤕",
-        "😵",
-        "🤢",
-        "🤡",
-        "👶",
-        "👦",
-        "👧",
-        "👨",
-        "👩",
-        "👴",
-        "👵",
-        "👲",
-        "🤵",
-        "👰",
-        "🤴",
-        "👸",
-      ];
-      let check= io(host)
+  let tokenAccess:string|null= localStorage.getItem("accessToken")
+  console.log(tokenAccess);
+  
+      useEffect(()=>{
+        axios.post(`URL`,{headers:{Authentication:tokenAccess},body:{}})
+      },[])
+const [ test,setTest]=useState(1)
       useEffect(() => {
-        io(host)
-      }, []);
+        // Kết nối tới máy chủ Socket.IO
+        const socket = io(host)
+
+        // Xử lý sự kiện nhận tin nhắn từ máy chủ
+        let Resroom:string="myCustomRoom";
+        socket.on(Resroom, (message) => {
+          console.log('Received message from server Room:', message);
+        });
+        // socket.on(Resroom, message => {
+        //   console.log(Resroom);
+          
+        //   console.log('Received message from server Message:', message);
+        // });
+
+        // Gửi tin nhắn tới máy chủ
+        socket.emit('joinroom', Resroom);
+        socket.emit('message',{room: Resroom, message: 'Hello Quy!'});
+
+        // Xử lý việc đóng kết nối
+        return () => {
+          socket.disconnect();
+        };
+      }, [test]);
       // useEffect(() => {
       //   // Kết nối tới máy chủ Socket.IO
       //   const socket = io('http://localhost:8000');
@@ -202,7 +154,7 @@ export default function Main() {
 
                   <div /* className={postIconStyle} */>
                     <p>Mặt cười & hình người</p>{" "}
-                    {postIcon?.map((icon, iconIndex) => (
+                    {/* {postIcon?.map((icon, iconIndex) => (
                       <>
                         <span
                           key={iconIndex}
@@ -211,7 +163,7 @@ export default function Main() {
                           {icon}
                         </span>
                       </>
-                    ))}
+                    ))} */}
                   </div>
                 </div>
               </div>
@@ -245,7 +197,7 @@ export default function Main() {
           </Modal.Body>
         </Modal>
         {/* CREATE POSTS MODAL END*/}
-        <button >TEST</button>
+        <button onClick={()=>setTest(test)}>TEST</button>
       </div>
       <ToastContainer autoClose={2500} />
     </div>

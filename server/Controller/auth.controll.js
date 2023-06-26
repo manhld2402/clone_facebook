@@ -58,7 +58,7 @@ module.exports.login = async (req, res) => {
 
     if (checkPassword) {
       let accessToken = jwt.sign(
-        { findPassword: findPassword.password },
+        { user_id: findDataUser[0].user_id },
         "ManhTH2402"
       );
       res.status(200).json({
