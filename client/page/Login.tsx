@@ -54,7 +54,6 @@ function Login() {
     dayOfBirth: "1",
     user_gender: "",
   });
-  console.log(dataSignup);
 
   const handleLogin = async (e: any): Promise<void> => {
     e.preventDefault();

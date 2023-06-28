@@ -1,5 +1,9 @@
 const { db } = require("../utils/database");
 const mysql = require("mysql2");
+// module.exports.getDataClient=async(user_id)=>{
+//   const data = await scrollBy.execute(``)
+
+// }
 module.exports.getInforOneUser= async()=>{
   let getUser= db.execute(``)
 }

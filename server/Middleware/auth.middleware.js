@@ -140,31 +140,8 @@ module.exports.checkCodeForgetPassword = async (req, res, next) => {
     res.status(500).json({ message: "INTERNAL SERVER ERROR" });
   }
 };
-// module.exports.checkToken = (req, res, next) => {
-//   let { authentication } = req.headers;
-//   console.log("authen-----------", authentication);
-//   let checkToken = jwt.verify(authentication, "ManhTH2402", (err, decoded) => {
-//     if (err) {
-//       // Xử lý lỗi xác minh JWT
-//       console.error("Error verifying JWT:", err);
-//     } else {
-//       // Truy cập vào payload của JWT
-//       const payload = decoded;
-//       req.authorization = payload.user_id;
-//     }
-//   });
-//   console.log("checkToken", checkToken);
-
-//   if (checkToken) {
-//     next();
-//   } else {
-//     res.status(404).json({ status: "fail", message: "Please Login" });
-//   }
-// };
-
 module.exports.checkToken = (req, res, next) => {
   let { authentication } = req.headers;
-  console.log("authen-----------", authentication);
   try {
     const decoded = jwt.verify(authentication, "ManhTH2402");
     const payload = decoded;

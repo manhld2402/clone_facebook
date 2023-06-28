@@ -3,65 +3,56 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 // import axios from "axios";
-import {io} from "socket.io-client"
+import { Socket, io } from "socket.io-client";
 // import io  from "socket.io"
 // import { storage } from "../../../../firebase";
 // import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 import { ToastContainer, toast } from "react-toastify";
 import "../../css/main.css";
 import axios from "axios";
-const host = 'http://localhost:4000';
+const host = "http://localhost:4000";
 export default function Main() {
-  let tokenAccess:string|null= localStorage.getItem("accessToken")
-  console.log(tokenAccess);
-  
-      useEffect(()=>{
-        axios.post(`URL`,{headers:{Authentication:tokenAccess},body:{}})
-      },[])
-const [ test,setTest]=useState(1)
-      useEffect(() => {
-        // Kết nối tới máy chủ Socket.IO
-        const socket = io(host)
+  // let accessToken = JSON.parse(localStorage.getItem("accessToken"));
+  // useEffect(()=>{
+  //   axios.get(`http://localhost:8000/api/v1/user`,{headers:{Authentication:accessToken}})
+  //   .then((data)=>{
+  //     dispath({type:"LOAD_DATA_USER",payload:data.data.data})
+  //     console.log(data.data.data)})
+  //   .catch((err)=>console.log(err))
+  // },[])
 
-        // Xử lý sự kiện nhận tin nhắn từ máy chủ
-        let Resroom:string="myCustomRoom";
-        socket.on(Resroom, (message) => {
-          console.log('Received message from server Room:', message);
-        });
-        // socket.on(Resroom, message => {
-        //   console.log(Resroom);
-          
-        //   console.log('Received message from server Message:', message);
-        // });
+  const [test, setTest] = useState(1);
+  useEffect(() => {
+    // Kết nối tới máy chủ Socket.IO
+    let roomChat = "hihihi";
+    //roomChat lấy từ db
+    const socket = io(host);
 
-        // Gửi tin nhắn tới máy chủ
-        socket.emit('joinroom', Resroom);
-        socket.emit('message',{room: Resroom, message: 'Hello Quy!'});
+    // Xử lý sự kiện nhận tin nhắn từ máy chủ
+    socket.on("user_id", (room) => {
+      roomChat = room;
+      console.log("Received message from server Room:", room);
+    });
+    //Nhận tin nhắn thông qua roomChat server trả về
+    socket.on(roomChat, (message) => {
+      console.log("Received message from server Room:", message);
+    });
 
-        // Xử lý việc đóng kết nối
-        return () => {
-          socket.disconnect();
-        };
-      }, [test]);
-      // useEffect(() => {
-      //   // Kết nối tới máy chủ Socket.IO
-      //   const socket = io('http://localhost:8000');
-    
-      //   // Xử lý sự kiện nhận tin nhắn từ máy chủ
-      //   socket.on('message', message => {
-      //     console.log('Received message from server:', message);
-      //   });
-    
-      //   // Gửi tin nhắn tới máy chủ
-      //   socket.emit('message', 'Hello server!');
-    
-      //   // Xử lý việc đóng kết nối
-      //   return () => {
-      //     socket.disconnect();
-      //   };
-      // }, []);
+    // Gửi tin nhắn tới máy chủ
+    //gửi tới server id của friend
+    socket.emit("friend_id", "user_id2");
+    //gửi tới server id của room
+    socket.emit("joinroom", roomChat);
+    //gửi tới server message
+    socket.emit("message", { room: roomChat, message: "Hello Quy!" });
+
+    // Xử lý việc đóng kết nối
+    return () => {
+      socket.disconnect();
+    };
+  }, [test]);
   return (
-    <div> 
+    <div>
       <div className="home-middle">
         {/* <StoryCarousel user={user} /> */}
         {/* NEWFEED INPUT */}
@@ -197,9 +188,9 @@ const [ test,setTest]=useState(1)
           </Modal.Body>
         </Modal>
         {/* CREATE POSTS MODAL END*/}
-        <button onClick={()=>setTest(test)}>TEST</button>
+        <button onClick={() => setTest(test)}>TEST</button>
       </div>
       <ToastContainer autoClose={2500} />
     </div>
-  )
+  );
 }
