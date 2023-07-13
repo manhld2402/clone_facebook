@@ -25,7 +25,7 @@ module.exports.insertAuth = (
       dayOfBirth,
       password,
       user_gender,
-      user_avatar
+      user_avatar,
     ]
   );
 };

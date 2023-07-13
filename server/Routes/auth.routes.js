@@ -25,5 +25,5 @@ router.post(
   changePassword
 );
 router.post("/send-code-forget", emailNotIsExist, sendCodeForgetPassword);
-router.post("/new-password",checkCodeForgetPassword,newPassword)
+router.post("/new-password", checkCodeForgetPassword, newPassword);
 module.exports = router;

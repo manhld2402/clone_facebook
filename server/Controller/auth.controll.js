@@ -137,6 +137,7 @@ module.exports.newPassword = async (req, res) => {
     let hashPassword = bcrypt.hashSync(password, salt);
     await setPassword(hashPassword, user_email);
     await deleteByProperty("tb_forget_password", "index", index);
+
     res.status(201).json({
       status: "successfully",
       message: "Tạo mới mật khẩu thành công!!!",

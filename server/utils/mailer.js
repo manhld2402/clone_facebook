@@ -11,7 +11,6 @@ exports.sendMail = async (to, subject, htmlcontent) => {
     },
   });
 
-
   const mailOptions = {
     from: "manh.ld2402@gmail.com",
     to: "vu.nn080899@gmail.com",

@@ -1,0 +1,21 @@
+io.on("connection", (socket: Socket) => {
+  console.log("new client connected");
+  let friend_id: string = "";
+
+  socket.on("friend_id", (id: string) => {
+    friend_id = id;
+  });
+
+  socket.on("joinroom", (room: string) => {
+    roomChat = room;
+    socket.join(room);
+    console.log("Received message from server ------Roomm:", roomChat);
+  });
+
+  socket.on("message", (data: { room: string; message: string }) => {
+    let { room, message } = data;
+    console.log("Received message from server:", room, "--------", message);
+    socket.emit(friend_id, roomChat);
+    socket.emit(roomChat, message);
+  });
+});

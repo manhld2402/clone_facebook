@@ -1,56 +1,89 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
+
 import Form from "react-bootstrap/Form";
 // import axios from "axios";
-import { Socket, io } from "socket.io-client";
 // import io  from "socket.io"
 // import { storage } from "../../../../firebase";
 // import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "../../css/main.css";
-import axios from "axios";
-const host = "http://localhost:4000";
+import StatusCard from "../Card/StatusCard";
+import { useDispatch, useSelector } from "react-redux";
+import privateAxios, { privateAxiosUpload } from "../../config/axios.config";
+import { useNavigate } from "react-router-dom";
 export default function Main() {
-  // let accessToken = JSON.parse(localStorage.getItem("accessToken"));
-  // useEffect(()=>{
-  //   axios.get(`http://localhost:8000/api/v1/user`,{headers:{Authentication:accessToken}})
-  //   .then((data)=>{
-  //     dispath({type:"LOAD_DATA_USER",payload:data.data.data})
-  //     console.log(data.data.data)})
-  //   .catch((err)=>console.log(err))
-  // },[])
-
-  const [test, setTest] = useState(1);
+  let [showCreatePost, setShowCreatePost] = useState<boolean>(false);
+  let [showInputImage, setShowInputImage] = useState<boolean>(true);
+  let [postActive, setPostActive] = useState<number>(3);
+  let [postContent, setPostContent] = useState<string>("");
+  let [file, setFile] = useState<string>("");
+  let [urlFile, setUrlFile] = useState<string>();
+  let [newFeed, setNewFeed] = useState<any>();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   useEffect(() => {
-    // Kết nối tới máy chủ Socket.IO
-    let roomChat = "hihihi";
-    //roomChat lấy từ db
-    const socket = io(host);
+    try {
+      privateAxios.get(`/api/v1/user`).then((res) => {
+        dispatch({ type: "LOAD_DATA_USER", payload: res.data.data });
+      });
+      privateAxios
+        .get("/api/v1/post")
+        .then((res) => setNewFeed(res.data.newFeed));
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+  console.log("newFeed", newFeed);
 
-    // Xử lý sự kiện nhận tin nhắn từ máy chủ
-    socket.on("user_id", (room) => {
-      roomChat = room;
-      console.log("Received message from server Room:", room);
-    });
-    //Nhận tin nhắn thông qua roomChat server trả về
-    socket.on(roomChat, (message) => {
-      console.log("Received message from server Room:", message);
-    });
+  const handleFile = (e: any) => {
+    setFile(e.target.files[0]);
+    setUrlFile(URL.createObjectURL(e.target.files[0]));
+    setShowInputImage(false);
+  };
 
-    // Gửi tin nhắn tới máy chủ
-    //gửi tới server id của friend
-    socket.emit("friend_id", "user_id2");
-    //gửi tới server id của room
-    socket.emit("joinroom", roomChat);
-    //gửi tới server message
-    socket.emit("message", { room: roomChat, message: "Hello Quy!" });
-
-    // Xử lý việc đóng kết nối
-    return () => {
-      socket.disconnect();
-    };
-  }, [test]);
+  // const handleFile = (e: any) => {
+  //   if (e.target.files) {
+  //     console.log(e.target.files);
+  //     // setFile(e.target.files[0]);
+  //     const formData = new FormData();
+  //     formData.append("file", e.target.files[0]);
+  //     privateAxiosUpload
+  //       .post("/api/v1/post/upload", formData)
+  //       .then((res) => console.log(res))
+  //       .catch((err) => console.log(err));
+  //     // axios({
+  //     //   method: "post",
+  //     //   url: "http://localhost:8000/api/v1/post/upload",
+  //     //   data: formData,
+  //     //   headers: { "Content-Type": "multipart/form-data" },
+  //     // })
+  //     //   .then(function (response) {
+  //     //     //handle success
+  //     //     console.log(response);
+  //     //   })
+  //     //   .catch(function (response) {
+  //     //     //handle error
+  //     //     console.log(response);
+  //     //   });
+  //     // //   // formData.append("postContent", JSON.stringify(postContent));
+  //     //   // formData.append("postActive", JSON.stringify(postActive));
+  //   }
+  // };
+  const handleAddPost = async (e: any) => {
+    e.preventDefault();
+    if (file || postContent) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("postContent", JSON.stringify(postContent));
+      formData.append("postActive", JSON.stringify(postActive));
+      privateAxiosUpload
+        .post("/api/v1/post/upload", formData)
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
+    }
+  };
+  const dataUser = useSelector((state: any) => state?.dataUser);
   return (
     <div>
       <div className="home-middle">
@@ -59,13 +92,16 @@ export default function Main() {
         <div className="create-newfeed-container">
           <div className="create-newfeed-input-container">
             <div className="create-newfeed-avatar">
-              {/* <img src={user.avatarDefault} alt="" /> */}
+              <img src={dataUser.user_avatar} alt="" />
             </div>
             <div
-              //   onClick={handleShowCreatePost}
+              onClick={() => {
+                setShowCreatePost(true);
+                setShowInputImage(false);
+              }}
               className="create-newfeed-input"
             >
-              {/* {user.surName} */} ơi, bạn đang nghĩ gì thế?
+              {dataUser.user_lastName} ơi, bạn đang nghĩ gì thế?
             </div>
           </div>
           <div className="create-newfeed-videos-images">
@@ -73,10 +109,17 @@ export default function Main() {
               <i className="fa-sharp fa-solid fa-video"></i> Video trực tiếp
             </div>
             <div
-              //   onClick={handleShowCreatePost}
+              onClick={() => setShowCreatePost(true)}
               className="create-newfeed-images"
             >
-              <i className="fa-sharp fa-solid fa-images"></i> Ảnh/video
+              <i
+                onClick={() => {
+                  setShowCreatePost(true);
+                  setShowInputImage(true);
+                }}
+                className="fa-sharp fa-solid fa-images"
+              ></i>{" "}
+              Ảnh/video
             </div>
             <div className="create-newfeed-smile">
               <i className="fa-sharp fa-solid fa-face-laugh"></i> Cảm xúc/hoạt
@@ -86,20 +129,19 @@ export default function Main() {
         </div>
         {/* NEWFEED INPUT END */}
         {/* NEWFEED BLOCK */}
-
-        {/* {posts
-          ?.sort((a, b) => b.postId - a.postId)
-          .map((post, postIndex) => (
-            <UserHomePost post={post} />
-          ))} */}
+        <div className="main-container-newfeed">
+          {newFeed?.map((post: any, index: number) => (
+            <StatusCard key={index} post={post} />
+          ))}
+        </div>
 
         {/* NEWFEED BLOCK END*/}
 
         {/* CREATE POSTS MODAL */}
         <Modal
           className="create-post-modal-container"
-          //   show={showCreatePost}
-          //   onHide={handleCloseCreatePost}
+          show={showCreatePost}
+          onHide={() => setShowCreatePost(false)}
         >
           <Modal.Header closeButton>
             <Modal.Title>
@@ -110,23 +152,22 @@ export default function Main() {
             <div className="create-post-modal-input">
               <div className="create-post-modal-head">
                 <div className="create-post-modal-avatar">
-                  {/* <img src={saveFlag.avatarDefault} alt="" /> */}
+                  <img src={dataUser.user_avatar} alt="" />
                 </div>
                 <div>
                   <div className="create-post-modal-username">
-                    {/* {saveFlag.firstName} {saveFlag.surName} */}
+                    {dataUser.user_firstName} {dataUser.user_lastName}
                   </div>
                   <div style={{ padding: "3px 0 0 13px" }}>
                     {" "}
                     <Form.Select
-                      //   onChange={(e) => setPostStatus(e.target.value)}
+                      onChange={(e: any) => setPostActive(e.target.value)}
                       size="sm"
-                      //   value={postStatus}
+                      value={postActive}
                     >
-                      <option value="">Chọn quyền riêng tư</option>
-                      <option value={0}>🌏 Công khai</option>
-                      <option value={1}>👥 Bạn bè</option>
-                      <option value={2}>🔒 Riêng tư</option>
+                      <option value={3}>🌏 Công khai</option>
+                      <option value={2}>👥 Bạn bè</option>
+                      <option value={1}>🔒 Riêng tư</option>
                     </Form.Select>
                   </div>
                 </div>
@@ -135,10 +176,9 @@ export default function Main() {
                 <div className="modal-middle-input">
                   <textarea
                     name="postContent"
-                    // type="text"
-                    // onChange={(e) => setPostContent([e.target.value])}
-                    // value={postContent}
-                    // placeholder={`${saveFlag.surName} ơi, bạn đang nghĩ gì thế?`}
+                    onChange={(e) => setPostContent(e.target.value)}
+                    value={postContent}
+                    placeholder={`${dataUser.user_lastName} ơi, bạn đang nghĩ gì thế?`}
                   ></textarea>
 
                   {/* <i onClick={handleShowIcons} className="far fa-smile"></i> */}
@@ -159,36 +199,36 @@ export default function Main() {
                 </div>
               </div>
               <div className="Dragger">
-                <input
-                  type="file"
-                  name="postImage"
-                  //   onChange={handlePostImageChange}
-                />
-                <div className="img-upload">
-                  {/* <img src={postImgPreview} alt="" /> */}
-                  <Button
-                    variant="primary" /* onClick={handleUploadPostImage} */
-                  >
-                    Tải ảnh lên
-                  </Button>{" "}
-                </div>
+                {showInputImage && (
+                  <input
+                    // style={{ display: showInputImage ? "none" : "" }}
+                    type="file"
+                    name="file"
+                    onChange={handleFile}
+                  />
+                )}
+
+                <img className="create-post-modal-preview-img" src={urlFile} />
               </div>
               <div className="create-post-modal-bottom">
                 <div>Thêm vào bài viết của bạn</div>
                 <div>
+                  <i
+                    onClick={() => setShowInputImage(true)}
+                    style={{ marginRight: "10px" }}
+                    className="fa-solid fa-image"
+                  ></i>
                   <i className="fas fa-user-tag"></i>
                 </div>
               </div>
             </div>
-            <div
-              /* onClick={handleAddPost} */ className="create-post-modal-submit"
-            >
+            <div onClick={handleAddPost} className="create-post-modal-submit">
               Đăng
             </div>
           </Modal.Body>
         </Modal>
         {/* CREATE POSTS MODAL END*/}
-        <button onClick={() => setTest(test)}>TEST</button>
+        {/* <StatusCard /> */}
       </div>
       <ToastContainer autoClose={2500} />
     </div>

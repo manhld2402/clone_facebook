@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 function Login() {
   type dataSignupType = {
@@ -17,6 +18,7 @@ function Login() {
     dayOfBirth: string;
     user_gender: string;
   };
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   let saveFlag = 0;
   let [showModalSignup, setShowModalSignup] = useState<boolean>(false);
@@ -74,10 +76,11 @@ function Login() {
               "accessToken",
               JSON.stringify(response.data.accessToken)
             );
-            localStorage.setItem(
-              "user_id",
-              JSON.stringify(response.data.user_id)
-            );
+            // localStorage.setItem(
+            //   "user_id",
+            //   JSON.stringify(response.data.user_id)
+            // );
+            dispatch({ type: "LOGIN", payload: "LOGIN" });
             navigate("/");
           }
         })
@@ -115,18 +118,21 @@ function Login() {
         position: toast.POSITION.TOP_RIGHT,
       });
     } else {
-      await axios.post(`http://localhost:8000/api/v1/auth/signup`, dataSignup)
-      .then(()=>{toast.success("Đăng ký thành công tài khoản!!!", {
-        position: toast.POSITION.BOTTOM_RIGHT,
-      });
-    setTimeout(() => {
-      setShowModalSignup(false)
-    }, 2000);
-    })
-      .catch(()=>{toast.error("Email đã tồn tại!!!", {
-        position: toast.POSITION.TOP_RIGHT,
-      });}
-      )
+      await axios
+        .post(`http://localhost:8000/api/v1/auth/signup`, dataSignup)
+        .then(() => {
+          toast.success("Đăng ký thành công tài khoản!!!", {
+            position: toast.POSITION.BOTTOM_RIGHT,
+          });
+          setTimeout(() => {
+            setShowModalSignup(false);
+          }, 2000);
+        })
+        .catch(() => {
+          toast.error("Email đã tồn tại!!!", {
+            position: toast.POSITION.TOP_RIGHT,
+          });
+        });
     }
   };
   let [notification, setNotification] = useState("");
@@ -136,6 +142,11 @@ function Login() {
       .then((data) => setNotification(data.data.message))
       .catch(() => setNotification("Kiểm tra lại Email!!!"));
   };
+  let getAccessToken = localStorage.getItem("accessToken");
+  let accessToken = getAccessToken ? JSON.parse(getAccessToken) : null;
+  if (accessToken) {
+    navigate("/");
+  }
   return (
     <>
       <div className="login-body">
@@ -271,7 +282,7 @@ function Login() {
             <div className="register-input-password">
               <input
                 name="password"
-                type="text"
+                type="password"
                 placeholder="Mật khẩu mới"
                 onChange={(e) => handleInputSignup(e)}
                 value={dataSignup.password}

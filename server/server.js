@@ -14,27 +14,19 @@ const io = new Server(app, {
   },
 });
 
-let roomChat = "hihihi";
+let resRoom = "hihihi";
 io.on("connection", (socket) => {
   /* socket object may be used to send specific messages to the new connected client */
   console.log("new client connected");
-  let friend_id = "";
-  //nhận id của friend
-  socket.on("friend_id", (id) => {
-    friend_id = id;
-  });
-  //nhận room từ client và join room
   socket.on("joinroom", (room) => {
-    roomChat = room;
+    resRoom = room;
     socket.join(room);
-    console.log("Received message from server ------Roomm:", roomChat);
+    console.log("Received message from server ------Roomm:", resRoom);
   });
-
   socket.on("message", (data) => {
     let { room, message } = data;
     console.log("Received message from server:", room, "--------", message);
-    socket.emit(friend_id, roomChat);
-    socket.emit(roomChat, message);
+    socket.emit(resRoom, message);
   });
 
   // Gửi tin nhắn tới client
@@ -56,15 +48,19 @@ server.use(express.static("public"));
 const authRoutes = require("./Routes/auth.routes");
 const userRoutes = require("./Routes/user.routes");
 const { checkToken } = require("./Middleware/auth.middleware");
-const { getDataMain } = require("./Models/main.model");
+const postRoutes = require("./Routes/post.routes");
 
 //Khai bao Router
 server.use("/api/v1/auth", authRoutes);
 server.use("/api/v1/user", userRoutes);
-server.get("/", checkToken, getDataMain);
+server.use("/api/v1/post", postRoutes);
+server.get("/", checkToken, (req, res) => {
+  console.log("author----------", req.headers);
+});
 server.listen(8000, () => {
   console.log("server listen port : 8000");
 });
 app.listen(4000, () => {
   console.log("socket listen port : 4000");
 });
+module.exports.io = io;

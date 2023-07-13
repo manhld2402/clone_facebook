@@ -1,0 +1,78 @@
+.header {
+  position: fixed;
+  background-color: rgba(255, 255, 255, 1);
+  width: 100%;
+  height: 56px;
+  display: flex;
+  z-index: 999;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+}
+.header > div:first-child {
+  width: 130px;
+}
+.header-btn-logo {
+  border: none;
+  background-color: #fff;
+  color: #1877f2;
+  font-size: 25px;
+  font-weight: 900;
+}
+.header-btn-logo > img {
+  width: 150px;
+  height: 55px;
+}
+.header-inputSearch {
+  width: 680px;
+  height: 40px;
+  border-radius: 20px;
+  padding: 0 20px;
+}
+
+.header-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+.header-right > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background-color: #e4e6eb;
+  border-radius: 50%;
+}
+.header-right > div:hover {
+  cursor: pointer;
+  background-color: #cfe1e9;
+}
+.header-btn-logout {
+  display: block;
+  border-radius: 10px;
+  position: absolute;
+  top: 55px;
+  right: 0px;
+  width: 120px;
+}
+.header-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.header-avatar:hover .header-btn-logout {
+  visibility: visible;
+}
+.header-avatar:hover {
+  cursor: pointer;
+}
+.btn-logout {
+  position: absolute;
+  top: 0px;
+  right: -10px;
+  width: 150px;
+  background-color: #eb0029;
+  border: none;
+}
